@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -49,18 +48,6 @@ func (s *Server) Start(stop <-chan struct{}) error {
 
 func (s *Server) router() http.Handler {
 	router := mux.NewRouter()
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		type defaultResponse struct {
-			Hola string `json:"hola"`
-		}
-		resp := &defaultResponse{
-			Hola: "Mundo",
-		}
-		response, err := json.Marshal(resp)
-		if err != nil {
-			w.Write([]byte(err.Error()))
-		}
-		w.Write(response)
-	})
+	router.HandleFunc("/", s.defaultRoute)
 	return router
 }
