@@ -7,8 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/gorilla/mux"
 )
 
 type Server struct{}
@@ -44,10 +42,4 @@ func (s *Server) Start(stop <-chan struct{}) error {
 	}()
 	<-stop
 	return srv.Shutdown(context.Background())
-}
-
-func (s *Server) router() http.Handler {
-	router := mux.NewRouter()
-	router.HandleFunc("/", s.defaultRoute)
-	return router
 }
