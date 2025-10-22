@@ -1,0 +1,73 @@
+# =========================================================
+# 🐹 GO PROJECT IGNORE
+# =========================================================
+
+# Archivos binarios y ejecutables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Directorios de compilación
+/bin/
+/build/
+/dist/
+/pkg/
+
+# Archivos temporales de Go
+*.log
+*.tmp
+
+# Dependencias locales (si usas vendor)
+vendor/
+
+# =========================================================
+# 🐳 DOCKER IGNORE
+# =========================================================
+
+# Archivos de entorno
+.env
+.env.*
+
+# Volúmenes de datos locales
+data/
+db_data/
+mysql_data/
+
+# Caché y artefactos generados por Docker
+*.pid
+*.tar
+*.img
+.docker/
+docker-compose.override.yml
+
+# =========================================================
+# 🧰 SISTEMA Y EDITORES
+# =========================================================
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de VS Code, JetBrains, etc.
+.vscode/
+.idea/
+*.swp
+*~
+
+# =========================================================
+# 📦 OTRAS CONFIGURACIONES
+# =========================================================
+
+# Archivos comprimidos o exportaciones
+*.zip
+*.rar
+*.7z
+*.gz
+*.tgz
+
+# Archivos generados por pruebas
+coverage.out
