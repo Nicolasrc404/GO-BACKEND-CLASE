@@ -94,11 +94,11 @@ func (s *Server) HandleGetPeopleById(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	person := s.DB[id-1]
-	if person == nil {
+	if int(id) >= len(s.DB)-1 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	person := s.DB[id-1]
 	resp := &api.PersonResponse{
 		ID:        person.ID,
 		Name:      person.Name,
