@@ -8,6 +8,6 @@ import (
 
 func (s *Server) router() http.Handler {
 	router := mux.NewRouter()
-	router.HandleFunc("/", s.defaultRoute)
+	router.HandleFunc("/people", s.HandlePeople).Methods(http.MethodGet, http.MethodPost)
 	return router
 }

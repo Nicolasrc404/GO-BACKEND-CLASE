@@ -1,14 +1,8 @@
 package main
 
-import (
-	"backend-avanzado/server"
-	"log"
-	"os"
-)
+import "backend-avanzado/server"
 
 func main() {
-	if err := server.StartServer(); err != nil {
-		log.Fatal("Error iniciando el servidor: %v", err)
-		os.Exit(1)
-	}
+	s := server.NewServer()
+	s.StartServer()
 }

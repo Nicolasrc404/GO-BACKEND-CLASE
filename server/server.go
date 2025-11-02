@@ -1,45 +1,32 @@
 package server
 
 import (
-	"context"
-	"log"
+	"backend-avanzado/logger"
+	"backend-avanzado/models"
+	"fmt"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
-type Server struct{}
-
-func StartServer() error {
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	stopper := make(chan struct{})
-	go func() {
-		<-done
-		close(stopper)
-	}()
-	server, err := newServer()
-	if err != nil {
-		return err
-	}
-	return server.Start(stopper)
+type Server struct {
+	BD     []*models.Person
+	Logger *logger.Logger
 }
 
-func newServer() (*Server, error) {
-	return &Server{}, nil
-}
-
-func (s *Server) Start(stop <-chan struct{}) error {
+func (s *Server) StartServer() {
 	srv := &http.Server{
 		Addr:    ":8000",
 		Handler: s.router(),
 	}
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatal(err)
-		}
-	}()
-	<-stop
-	return srv.Shutdown(context.Background())
+	fmt.Println("Escuchando en el puerto 8000...")
+	if err := srv.ListenAndServe(); err != nil {
+		// Mostrar error
+		s.Logger.Fatal(err)
+	}
+}
+
+func NewServer() *Server {
+	return &Server{
+		Logger: logger.NewLogger(),
+		BD:     make([]*models.Person, 0),
+	}
 }
