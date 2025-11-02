@@ -50,5 +50,22 @@ func (s *Server) handeleCreatePerson(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleGetAtPeople(w http.ResponseWriter, r *http.Request) {
-
+	response := make([]*api.PersonResponse, 0)
+	for _, person := range s.BD {
+		personResponse := &api.PersonResponse{
+			ID:        person.ID,
+			Name:      person.Name,
+			Age:       person.Age,
+			CreatedAt: person.CreatedAt.String(),
+		}
+		response = append(response, personResponse)
+	}
+	result, err := json.Marshal(response)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(result)
 }
