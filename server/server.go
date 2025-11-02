@@ -8,7 +8,7 @@ import (
 )
 
 type Server struct {
-	BD     []*models.Person
+	DB     []*models.Person
 	Logger *logger.Logger
 }
 
@@ -27,6 +27,6 @@ func (s *Server) StartServer() {
 func NewServer() *Server {
 	return &Server{
 		Logger: logger.NewLogger(),
-		BD:     make([]*models.Person, 0),
+		DB:     make([]*models.Person, 0),
 	}
 }

@@ -5,7 +5,10 @@ import (
 	"backend-avanzado/models"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 func (s *Server) HandlePeople(w http.ResponseWriter, r *http.Request) {
@@ -19,6 +22,20 @@ func (s *Server) HandlePeople(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Server) HandlePeopleWithId(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		s.HandleGetPeopleById(w, r)
+		return
+		/* case http.MethodPut:
+			s.handeEditPerson(w, r)
+			return
+		case http.MethodDelete:
+			s.handleDeletePerson(w, r)
+			return */
+	}
+}
+
 func (s *Server) handeleCreatePerson(w http.ResponseWriter, r *http.Request) {
 	var p api.PersonRequest
 	err := json.NewDecoder(r.Body).Decode(&p)
@@ -27,12 +44,12 @@ func (s *Server) handeleCreatePerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	person := &models.Person{
-		ID:        len(s.BD) + 1,
+		ID:        len(s.DB) + 1,
 		Name:      p.Name,
 		Age:       p.Age,
 		CreatedAt: time.Now(),
 	}
-	s.BD = append(s.BD, person)
+	s.DB = append(s.DB, person)
 	pResponse := &api.PersonResponse{
 		ID:        person.ID,
 		Name:      person.Name,
@@ -51,7 +68,7 @@ func (s *Server) handeleCreatePerson(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleGetAtPeople(w http.ResponseWriter, r *http.Request) {
 	response := make([]*api.PersonResponse, 0)
-	for _, person := range s.BD {
+	for _, person := range s.DB {
 		personResponse := &api.PersonResponse{
 			ID:        person.ID,
 			Name:      person.Name,
@@ -61,6 +78,34 @@ func (s *Server) handleGetAtPeople(w http.ResponseWriter, r *http.Request) {
 		response = append(response, personResponse)
 	}
 	result, err := json.Marshal(response)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(result)
+}
+
+func (s *Server) HandleGetPeopleById(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.ParseInt(vars["id"], 10, 32)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	person := s.DB[id-1]
+	if person == nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	resp := &api.PersonResponse{
+		ID:        person.ID,
+		Name:      person.Name,
+		Age:       person.Age,
+		CreatedAt: person.CreatedAt.String(),
+	}
+	result, err := json.Marshal(resp)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
