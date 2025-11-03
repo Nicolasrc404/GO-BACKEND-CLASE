@@ -1,10 +1,11 @@
 package models
 
-import "time"
+import (
+	"gorm.io/gorm"
+)
 
 type Person struct {
-	ID        int
-	Name      string
-	Age       int
-	CreatedAt time.Time
+	gorm.Model
+	Name string
+	Age  int
 }

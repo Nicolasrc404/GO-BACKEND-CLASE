@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -14,7 +13,7 @@ import (
 func (s *Server) HandlePeople(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		s.handleGetAtPeople(w, r)
+		s.handleGetAllPeople(w, r)
 		return
 	case http.MethodPost:
 		s.handeleCreatePerson(w, r)
@@ -44,14 +43,17 @@ func (s *Server) handeleCreatePerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	person := &models.Person{
-		ID:        len(s.DB) + 1,
-		Name:      p.Name,
-		Age:       p.Age,
-		CreatedAt: time.Now(),
+		Name: p.Name,
+		Age:  p.Age,
 	}
-	s.DB = append(s.DB, person)
+	person, err = s.PeopleRepository.Save(person)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	pResponse := &api.PersonResponse{
-		ID:        person.ID,
+		ID:        int(person.ID),
 		Name:      person.Name,
 		Age:       person.Age,
 		CreatedAt: person.CreatedAt.String(),
@@ -66,16 +68,21 @@ func (s *Server) handeleCreatePerson(w http.ResponseWriter, r *http.Request) {
 	w.Write(result)
 }
 
-func (s *Server) handleGetAtPeople(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleGetAllPeople(w http.ResponseWriter, r *http.Request) {
 	response := make([]*api.PersonResponse, 0)
-	for _, person := range s.DB {
-		personResponse := &api.PersonResponse{
-			ID:        person.ID,
-			Name:      person.Name,
-			Age:       person.Age,
-			CreatedAt: person.CreatedAt.String(),
+	people, err := s.PeopleRepository.FindAll()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	for _, v := range people {
+		personResponde := &api.PersonResponse{
+			ID:        int(v.ID),
+			Name:      v.Name,
+			Age:       v.Age,
+			CreatedAt: v.CreatedAt.String(),
 		}
-		response = append(response, personResponse)
+		response = append(response, personResponde)
 	}
 	result, err := json.Marshal(response)
 	if err != nil {
@@ -94,13 +101,19 @@ func (s *Server) HandleGetPeopleById(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if int(id) >= len(s.DB)-1 {
+
+	person, err := s.PeopleRepository.FindById(int(id))
+	if person != nil && err == nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	person := s.DB[id-1]
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	resp := &api.PersonResponse{
-		ID:        person.ID,
+		ID:        int(person.ID),
 		Name:      person.Name,
 		Age:       person.Age,
 		CreatedAt: person.CreatedAt.String(),
