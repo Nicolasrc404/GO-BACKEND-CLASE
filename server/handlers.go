@@ -103,7 +103,7 @@ func (s *Server) HandleGetPeopleById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	person, err := s.PeopleRepository.FindById(int(id))
-	if person != nil && err == nil {
+	if person == nil && err == nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
