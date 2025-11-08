@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"backend-avanzado/models"
+	"backend-avanzada/models"
 	"errors"
 
 	"gorm.io/gorm"
@@ -46,7 +46,7 @@ func (p *PeopleRepository) FindById(id int) (*models.Person, error) {
 	return &person, nil
 }
 
-func (p *PeopleRepository) Deleted(data *models.Person) error {
+func (p *PeopleRepository) Delete(data *models.Person) error {
 	err := p.db.Delete(data).Error
 	if err != nil {
 		return err
